@@ -1,0 +1,25 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import minimize
+
+def gibbs_free_energy(x, T, G_A, G_B, R, Omega):
+    x = np.clip(x, 1e-6, 1 - 1e-6)  # Avoid log(0) issues
+    G_mix = x * G_A + (1 - x) * G_B
+    G_mix += R * T * (x * np.log(x) + (1 - x) * np.log(1 - x))
+    G_mix += Omega * x * (1 - x)
+    return G_mix
+
+R = 8.314  # J/mol·K
+T = 1000   # K
+G_A, G_B = 0, 5000
+Omega = 15000
+
+# Evaluate free energy over compositions
+x_vals = np.linspace(0.01, 0.99, 100)
+G_vals = [gibbs_free_energy(x, T, G_A, G_B, R, Omega) for x in x_vals]
+
+plt.plot(x_vals, G_vals)
+plt.xlabel("Mole fraction of A")
+plt.ylabel("Gibbs Free Energy (J/mol)")
+plt.title("Free Energy vs Composition at T = {} K".format(T))
+plt.show()
